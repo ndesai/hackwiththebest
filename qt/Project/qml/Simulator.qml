@@ -7,7 +7,7 @@ Item {
     signal playVideo
     signal pauseVideo
 
-    property int simulatorIndex: 3
+    property int simulatorIndex: 2
     property int currentIndex: 0
     property var currentData: _jsonListModel.model.count > 0 ? _jsonListModel.model.get(currentIndex) : null
     readonly property bool running: _timer.running

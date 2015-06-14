@@ -1,15 +1,36 @@
 #! /usr/bin/python
 
 import serial, sys
+import paho.mqtt.client as mqtt
 
 # Each test bench is labeled with the serial device name on the USB cable
-device_name = '/dev/cu.usbserial-FTGQCF2N' 
+device_name = '/dev/cu.usbserial-FTF7TY5M' 
 baud_rate   = 115200
 
 # Set up the serial port connection
 ser = serial.Serial(device_name, baud_rate)
 ser.flushInput()
 ser.flushOutput()
+
+
+# -*- coding: utf-8 -*-
+
+
+
+def on_connect(client, userdata, rc):
+    print "Topic: \nMessage: "
+    client.subscribe("hack")
+
+def on_message(client, userdata, msg):
+    print "Topic: ", msg.topic+"\nMessage: "+str(msg.payload)
+
+client = mqtt.Client()
+client.on_connect = on_connect
+client.on_message = on_message
+
+client.connect("localhost", 1883, 60)
+
+client.loop_forever()
 
 while True:
     raw_data = ser.readline()
@@ -28,3 +49,10 @@ while True:
 
     # Force the system to flush the data buffer and write the output immediately
     sys.stdout.flush()
+
+    mqttc = mqtt.Client("hack")
+    mqttc.connect("localhost", 1883)
+    mqttc.publish("hack", command + "|" + params)
+    # mqttc.loop(1)
+
+

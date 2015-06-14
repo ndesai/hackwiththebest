@@ -40,15 +40,41 @@ Item {
 
                         //_listView.model = response.response.groups[0].items.slice(0, 5)
 
-                        root.destroyByTag(tag);
-                        _itemTempContainer.clearChildren();
 
                         var list = response.response.groups[0].items.slice(0, 5);
                         _listView.model = list
                         var tag = String(Math.random()*100000);
+
+                        var listOfNewIds = []
+
                         for (var i = 0; i < list.length; i++) {
-                            var poi = _componentPOI.createObject(_itemTempContainer, { "modelData": list[i], "tag" : tag })
+
+                            var identifier = list[i].venue.id
+                            listOfNewIds.push(identifier)
+
+                            var localMap = root.poiMap
+
+                            var p = localMap[identifier]
+
+                            if (!p) {
+                                var poi = _componentPOI.createObject(_itemTempContainer, { "modelData": list[i], "tag" : tag })
+                                localMap[identifier] = poi
+                            } else {
+                                //                                p.tag = tag
+                                //                                p.modelData = list[i];
+                            }
+
+                            root.poiMap = localMap
                         }
+
+                        var localMap = root.poiMap
+                        for (var j = 0, keys = Object.keys(root.poiMap); j < keys.length; j++) {
+                            if(listOfNewIds.indexOf(keys[j]) === -1) {
+                                localMap[keys[j]].destroy();
+                                delete localMap[keys[j]]
+                            }
+                        }
+                        root.poiMap = localMap
                     }
                 });
             }
@@ -107,14 +133,11 @@ Item {
         id: _itemTempContainer
         anchors.fill: parent
 
-        function clearChildren() {
-            for(var i = children.length; i > 0 ; i--) {
-                children[i-1].destroy()
-            }
-        }
-
         z: 10000
     }
+
+    // 4a844f01f964a5203bfc1fe3 to object
+    property var poiMap: ({});
 
     Component {
         id: _componentPOI
@@ -124,22 +147,22 @@ Item {
 
             property string tag: ""
 
-            Connections {
-                target: root
-                onDestroyByTag: {
-                    if(_item.tag === tag) {
-                        _item.destroy();
-                    }
-                }
-            }
+            //            Connections {
+            //                target: root
+            //                onDestroyByTag: {
+            //                    if(_item.tag === tag) {
+            //                        _item.destroy();
+            //                    }
+            //                }
+            //            }
 
             property var modelData: ({});
 
             property double distance: _api.howFarFromMe(modelData.venue.location.lat,
                                                         modelData.venue.location.lng)
 
-            property double bearing:_api.whatBearingFromMe(modelData.venue.location.lat,
-                                                           modelData.venue.location.lng)
+            property double bearing: _api.whatBearingFromMe(modelData.venue.location.lat,
+                                                            modelData.venue.location.lng)
 
             function bearingToHeading(bearing) {
                 var directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"];
@@ -161,13 +184,21 @@ Item {
             x: ((root.width - width) / 2)
             y: ((root.height - height) / 2)
 
-//            Behavior on x {
-//                NumberAnimation { duration: 180 }
-//            }
+            visible: false
 
-//            Behavior on y {
-//                NumberAnimation { duration: 180 }
-//            }
+            Timer {
+                running: true
+                interval: 1000
+                onTriggered: parent.visible = true
+            }
+
+            Behavior on x {
+                NumberAnimation { duration: 180 }
+            }
+
+            Behavior on y {
+                NumberAnimation { duration: 180 }
+            }
 
             //            onDistanceChanged: {
             //                if (distance > 0.5) {
@@ -257,8 +288,6 @@ Item {
             }
         }
     }
-
-
 
     TextLabel {
         anchors.left: _listView.left
