@@ -8,9 +8,8 @@ import QtGraphicalEffects 1.0 as QGE
 ApplicationWindow {
     id: root
 
-    property bool production: false
+    property bool production: true
 
-//    y: -1000
     width: 960
     height: 540
     visible: true
@@ -76,21 +75,8 @@ ApplicationWindow {
         Venues {
             id: _venues
 
-            width: 400
-
-            anchors.right: parent.right
-            anchors.rightMargin: 10
-            anchors.top: _dashcam.top
-            anchors.topMargin: 10
-            anchors.bottom: parent.bottom
+            anchors.fill: parent
         }
-
-//        WebView {
-//            width: 640
-//            height: 460
-//            anchors.centerIn: parent
-//            url: "http://app.st"
-//        }
 
         TextLabel {
             anchors.left: parent.left
