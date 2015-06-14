@@ -7,7 +7,9 @@
 		<file>qml/assets/simulation-4.json</file>
 		<file>qml/Dashcam.qml</file>
 		<file>qml/img/arrow.png</file>
+		<file>qml/img/beer.png</file>
 		<file>qml/img/bg.jpg</file>
+		<file>qml/img/cop.png</file>
 		<file>qml/main.qml</file>
 		<file>qml/Simulator.qml</file>
 		<file>qml/TextLabel.qml</file>

@@ -10,9 +10,11 @@ Item {
                          + "&client_secret=" + clientSecret
                          + "&ll=%lat%,%long%&v=20150613"
 
+    property string filterUrl: _venues.filter ? url + "&section=" + _venues.filter : url
+
 
     function findLocalVenues(latitude, longitude, callback) {
-        webRequest(url.replace("%lat%", latitude).replace("%long%", longitude), callback);
+        webRequest(filterUrl.replace("%lat%", latitude).replace("%long%", longitude), callback);
     }
 
     function webRequest(requestUrl, callback){

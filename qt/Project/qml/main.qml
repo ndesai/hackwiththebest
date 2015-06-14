@@ -120,6 +120,19 @@ ApplicationWindow {
             _venues.listOpen ^= 1
         }
 
+        Keys.onSpacePressed: {
+            _dashcam.beer()
+
+            if (_venues.filter === "drinks") {
+                _imageBeer.source = "img/cop.png"
+            } else {
+                _imageBeer.source = "img/beer.png"
+            }
+
+            _venues.filter = _venues.filter === "drinks" ? "" : "drinks"
+        }
+
+
         states: [
             State {
                 name: "menuOpen"
@@ -146,14 +159,52 @@ ApplicationWindow {
         Dashcam {
             id: _dashcam
 
+            signal beer
+
             layer.enabled: true
             layer.effect: QGE.FastBlur {
+                id: _fastBlur
                 radius: 100
 
+                Connections {
+                    target: _dashcam
+                    onBeer: {
+                        _behaviorRadius.enabled = false
+                        _beerAnimation.restart();
+                    }
+                }
+
                 Behavior on radius {
+                    id: _behaviorRadius
                     SequentialAnimation {
                         PauseAnimation { duration: 1000 }
                         NumberAnimation { duration: 2000 }
+                    }
+                }
+
+                property alias animation: _beerAnimation
+
+                SequentialAnimation {
+                    id: _beerAnimation
+                    running: false
+
+                    NumberAnimation {
+                        target: _fastBlur
+                        property: "radius"
+                        from: 0
+                        to: 50
+                        duration: 450
+                    }
+
+                    PauseAnimation {
+                        duration: 1500
+                    }
+                    NumberAnimation {
+                        target: _fastBlur
+                        property: "radius"
+                        from: 50
+                        to: 0
+                        duration: 300
                     }
                 }
 
@@ -178,6 +229,52 @@ ApplicationWindow {
                 id: _venues
 
                 anchors.fill: parent
+            }
+        }
+
+        Image {
+            id: _imageBeer
+            anchors.centerIn: _dashcam
+
+            source: "img/beer.png"
+            scale: 0
+            transformOrigin: Item.Center
+
+            layer.enabled: true
+            layer.effect: QGE.ColorOverlay {
+                color: "white"
+            }
+
+            Connections {
+                target: _dashcam
+                onBeer: {
+                    _beerMugAnimation.restart()
+                }
+            }
+
+            SequentialAnimation {
+                id: _beerMugAnimation
+
+                NumberAnimation {
+                    target: _imageBeer
+                    property: "scale"
+                    from: 0.65
+                    to: 1.0
+                    duration: 320
+                    easing.type: Easing.OutBack
+                }
+
+                PauseAnimation {
+                    duration: 1650
+                }
+                NumberAnimation {
+                    target: _imageBeer
+                    property: "scale"
+                    from: 1.0
+                    to: 0
+                    duration: 250
+                    easing.type: Easing.OutBack
+                }
             }
         }
     }

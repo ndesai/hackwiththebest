@@ -5,6 +5,9 @@ Item {
 
     property string location: ""
     property bool listOpen: true
+
+    property string filter: ""
+
     signal destroyByTag(string tag);
 
     StateGroup {
@@ -43,7 +46,7 @@ Item {
 
     Timer {
         id: _timerLimiter
-        interval: 10000
+        interval: 3000
     }
 
     Connections {
@@ -225,11 +228,11 @@ Item {
             }
 
             Behavior on x {
-                NumberAnimation { duration: 180 }
+                SmoothedAnimation { velocity: 500 }
             }
 
             Behavior on y {
-                NumberAnimation { duration: 180 }
+                SmoothedAnimation { velocity: 500 }
             }
 
             //            onDistanceChanged: {
