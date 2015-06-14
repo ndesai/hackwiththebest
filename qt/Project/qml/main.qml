@@ -77,20 +77,5 @@ ApplicationWindow {
 
             anchors.fill: parent
         }
-
-        TextLabel {
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-
-            anchors.leftMargin: 10
-            anchors.bottomMargin: 4
-
-            font.italic: true
-            font.weight: Font.DemiBold
-            font.capitalization: Font.AllUppercase
-
-            text: _venues.location
-        }
     }
 }

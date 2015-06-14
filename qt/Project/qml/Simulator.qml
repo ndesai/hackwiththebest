@@ -7,6 +7,7 @@ Item {
     signal playVideo
     signal pauseVideo
 
+    property int simulatorIndex: 3
     property int currentIndex: 0
     property var currentData: _jsonListModel.model.count > 0 ? _jsonListModel.model.get(currentIndex) : null
     readonly property bool running: _timer.running
@@ -53,7 +54,7 @@ Item {
 
     JSONListModel {
         id: _jsonListModel
-        source: "http://127.0.0.1/hack/simulation-data/simulation-2.json"
+        source: "http://127.0.0.1/hack/simulation-data/simulation-" + root.simulatorIndex + ".json"
         query: "$.responses[*]"
     }
 

@@ -21,7 +21,8 @@ Item {
         anchors.fill: parent
         source: MediaPlayer {
             id: _mediaPlayer
-            source: "file:///Users/niraj/Work/hackwiththebest/qt/InputSample/simulation-2-resized.mp4"
+            //            source: "file:///Users/niraj/Work/hackwiththebest/qt/InputSample/simulation-2-resized.mp4"
+            source: "file:///Users/niraj/Work/hackwiththebest/input/simulation-" + _simulator.simulatorIndex + ".mp4"
             autoPlay: false
         }
     }

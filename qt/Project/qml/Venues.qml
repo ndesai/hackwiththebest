@@ -4,6 +4,7 @@ Item {
     id: root
 
     property string location: ""
+    signal destroyByTag(string tag);
 
     Timer {
         id: _timerLimiter
@@ -30,7 +31,7 @@ Item {
 
             if (latitude && longitude) {
                 _api.findLocalVenues(latitude, longitude, function(response) {
-                    root.location = response.response.headerFullLocation
+                    root.location = response.response.headerLocation
                     if (response.response
                             && response.response.groups
                             && response.response.groups[0]
@@ -39,9 +40,14 @@ Item {
 
                         //_listView.model = response.response.groups[0].items.slice(0, 5)
 
+                        root.destroyByTag(tag);
+                        _itemTempContainer.clearChildren();
+
                         var list = response.response.groups[0].items.slice(0, 5);
+                        _listView.model = list
+                        var tag = String(Math.random()*100000);
                         for (var i = 0; i < list.length; i++) {
-                            var poi = _componentPOI.createObject(root, { "modelData": list[i] })
+                            var poi = _componentPOI.createObject(_itemTempContainer, { "modelData": list[i], "tag" : tag })
                         }
                     }
                 });
@@ -97,10 +103,35 @@ Item {
         return [nx*scalar, ny*scalar];
     }
 
+    Item {
+        id: _itemTempContainer
+        anchors.fill: parent
+
+        function clearChildren() {
+            for(var i = children.length; i > 0 ; i--) {
+                children[i-1].destroy()
+            }
+        }
+
+        z: 10000
+    }
+
     Component {
         id: _componentPOI
 
         Item {
+            id: _item
+
+            property string tag: ""
+
+            Connections {
+                target: root
+                onDestroyByTag: {
+                    if(_item.tag === tag) {
+                        _item.destroy();
+                    }
+                }
+            }
 
             property var modelData: ({});
 
@@ -115,8 +146,8 @@ Item {
                 return directions[Math.round((bearing % 360) / 45)];
             }
 
-            width: 200
-            height: 90
+            width: 52
+            height: 52
 
             property int widthDistanceFromMax: (root.width - (width + x))
             property int heightDistanceFromMax: (root.height - (height + y))
@@ -130,22 +161,22 @@ Item {
             x: ((root.width - width) / 2)
             y: ((root.height - height) / 2)
 
-            Behavior on x {
-                NumberAnimation { duration: 180 }
-            }
+//            Behavior on x {
+//                NumberAnimation { duration: 180 }
+//            }
 
-            Behavior on y {
-                NumberAnimation { duration: 180 }
-            }
+//            Behavior on y {
+//                NumberAnimation { duration: 180 }
+//            }
 
-            onDistanceChanged: {
-                if (distance > 0.5) {
-                    console.log()
-                    console.log("destroy !modelData.venue.name = " + modelData.venue.name,
-                                "distance = " + distance)
-                    destroy()
-                }
-            }
+            //            onDistanceChanged: {
+            //                if (distance > 0.5) {
+            //                    console.log()
+            //                    console.log("destroy !modelData.venue.name = " + modelData.venue.name,
+            //                                "distance = " + distance)
+            //                    destroy()
+            //                }
+            //            }
 
             onBearingChanged: {
 
@@ -189,18 +220,12 @@ Item {
 
             }
 
-            Rectangle {
+            Item {
                 anchors.fill: parent
-                anchors.leftMargin: 10
-                anchors.rightMargin: 10
-                anchors.bottomMargin: 20
-                radius: 2
-
-                color: "#AA222222"
 
                 Item {
                     id: _itemImageContainer
-                    height: parent.height
+                    height: 52
                     width: _imageIcon.status !== Image.Ready ? 0 : height
                     clip: true
 
@@ -219,23 +244,130 @@ Item {
                         asynchronous: true
                         cache: true
                     }
+
+                    layer.enabled: true
+                    layer.effect: QGE.DropShadow {
+                        radius: 2
+                        samples: 6
+                        verticalOffset: 2
+                        horizontalOffset: 2
+                        color: "#000000"
+                    }
+                }
+            }
+        }
+    }
+
+
+
+    TextLabel {
+        anchors.left: _listView.left
+        anchors.right: _listView.right
+        anchors.bottom: _listView.top
+        anchors.bottomMargin: 10
+
+        font.italic: true
+        font.weight: Font.DemiBold
+        font.capitalization: Font.AllUppercase
+        elide: Text.ElideRight
+        font.pixelSize: 24
+
+        text: root.location
+    }
+
+    ListView {
+        id: _listView
+
+
+        width: 260
+        anchors.right: parent.right
+        height: delegateHeight * 5
+        anchors.verticalCenter: parent.verticalCenter
+
+        property int delegateHeight: 70
+
+        model: root.model
+        delegate: _delegate
+
+        onCountChanged: {
+            console.log("count = " + count)
+        }
+
+        Component {
+            id: _delegate
+
+            Item {
+
+                property double distance: _api.howFarFromMe(modelData.venue.location.lat,
+                                                            modelData.venue.location.lng)
+
+                property double bearing:_api.whatBearingFromMe(modelData.venue.location.lat,
+                                                               modelData.venue.location.lng)
+
+                function bearingToHeading(bearing) {
+                    var directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"];
+                    return directions[Math.round((bearing % 360) / 45)];
                 }
 
-                TextLabel {
-                    anchors.left: _itemImageContainer.right
-                    anchors.right: parent.right
-                    anchors.rightMargin: 10
-                    anchors.verticalCenter: _itemImageContainer.verticalCenter
-                    height: parent.height
-                    verticalAlignment: Text.AlignVCenter
-                    font.pixelSize: 16
-                    color: "#ffffff"
-                    font.weight: Font.DemiBold
-                    elide: Text.ElideRight
-                    maximumLineCount: 2
-                    wrapMode: Text.WordWrap
+                width: ListView.view.width
+                height: ListView.view.delegateHeight
 
-                    text: modelData.venue.name
+                Rectangle {
+                    anchors.fill: parent
+                    anchors.rightMargin: 10
+                    anchors.bottomMargin: 20
+                    radius: 2
+
+                    color: "#AA222222"
+
+                    Item {
+                        id: _itemImageContainer
+                        height: parent.height
+                        width: _imageIcon.status !== Image.Ready ? 0 : height
+                        clip: true
+
+                        Behavior on width {
+                            NumberAnimation { easing.type: Easing.OutBack; duration: 180 }
+                        }
+
+                        Image {
+                            id: _imageIcon
+                            property var icon: modelData.venue.categories.length > 0 ? modelData.venue.categories[0].icon : null
+                            anchors.centerIn: parent
+                            width: 40
+                            fillMode: Image.PreserveAspectFit
+
+                            source: icon.prefix + "64" + icon.suffix + "?ref=" + _api.clientId
+                            asynchronous: true
+                            cache: true
+                        }
+                    }
+
+                    Column {
+                        anchors.left: _itemImageContainer.right
+                        anchors.right: parent.right
+                        anchors.verticalCenter: _itemImageContainer.verticalCenter
+                        height: childrenRect.height
+
+                        TextLabel {
+                            width: parent.width - 10
+                            font.pixelSize: 16
+                            color: "#ffffff"
+                            font.weight: Font.DemiBold
+                            elide: Text.ElideRight
+
+                            text: modelData.venue.name
+                        }
+
+                        TextLabel {
+                            width: parent.width - 10
+                            font.pixelSize: 12
+                            color: "#dddddd"
+                            elide: Text.ElideRight
+
+                            text: String(distance).substr(0, 4) + " miles" + " " + bearingToHeading(Math.floor(bearing))
+                        }
+                    }
                 }
             }
         }

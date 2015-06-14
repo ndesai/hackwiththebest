@@ -8,10 +8,10 @@ Text {
 
     layer.enabled: true
     layer.effect: DropShadow {
-        radius: 6
-        spread: 6
-        verticalOffset: 3
-        horizontalOffset: 3
+        radius: 2
+        samples: 6
+        verticalOffset: 2
+        horizontalOffset: 2
         color: "#000000"
     }
 }
