@@ -17,11 +17,6 @@ ApplicationWindow {
     visibility: production ? "FullScreen" : "Windowed"
     flags: Qt.FramelessWindowHint
 
-    Image {
-        anchors.fill: parent
-
-        source: "img/bg.jpg"
-    }
 
     Api {
         id: _api
@@ -39,43 +34,151 @@ ApplicationWindow {
         }
     }
 
-    Dashcam {
-        id: _dashcam
+    Image {
+        anchors.fill: parent
 
-//        anchors.centerIn: parent
+        source: "img/bg.jpg"
+    }
 
-        layer.enabled: true
-        layer.effect: QGE.FastBlur {
-            radius: 100
+    Item {
+        id: _itemMenu
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.right: _itemContainer.left
+        width: 400
 
-            Behavior on radius {
+        ListView {
+            anchors.fill: parent
+            model: [
+                {
+                    "text": "Radio",
+                    "selected" : false
+                },
+                {
+                    "text": "Media",
+                    "selected" : false
+                },
+                {
+                    "text": "Navigation",
+                    "selected" : true
+                },
+                {
+                    "text": "Settings",
+                    "selected" : false
+                }
+            ]
+
+            delegate: Item {
+                width: ListView.view.width
+                height: 80
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: "#222222"
+                    opacity: 0.65
+                }
+
+                Rectangle {
+                    height: 1
+                    width: parent.width
+
+                    color: "#222222"
+                }
+
+                TextLabel {
+                    anchors.left: parent.left
+                    anchors.leftMargin: 20
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: parent.width
+                    wrapMode: Text.Wrap
+                    maximumLineCount: 2
+                    font.italic: true
+                    font.bold: Font.DemiBold
+                    text: modelData.text
+
+                    opacity: modelData.selected ? 1.0 : 0.6
+                }
+            }
+        }
+    }
+
+    Item {
+        id: _itemContainer
+        anchors.fill: parent
+        focus: true
+
+        Keys.onRightPressed: {
+
+            if (state === "menuOpen") {
+                state = ""
+            } else {
+                state = "menuOpen"
+            }
+        }
+
+        Keys.onLeftPressed: {
+            _venues.listOpen ^= 1
+        }
+
+        states: [
+            State {
+                name: "menuOpen"
+                PropertyChanges {
+                    target: _itemContainer
+                    anchors.leftMargin: 400
+                }
+            }
+        ]
+
+        transitions: [
+            Transition {
                 SequentialAnimation {
-                    PauseAnimation { duration: 1000 }
-                    NumberAnimation { duration: 2000 }
+                    NumberAnimation {
+                        target: _itemContainer
+                        property: "anchors.leftMargin"
+                        duration: 300
+                        easing.type: Easing.OutCubic
+                    }
+                }
+            }
+        ]
+
+        Dashcam {
+            id: _dashcam
+
+            layer.enabled: true
+            layer.effect: QGE.FastBlur {
+                radius: 100
+
+                Behavior on radius {
+                    SequentialAnimation {
+                        PauseAnimation { duration: 1000 }
+                        NumberAnimation { duration: 2000 }
+                    }
+                }
+
+                Component.onCompleted: {
+                    radius = 0
                 }
             }
 
-            Component.onCompleted: {
-                radius = 0
-            }
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            drag.target: parent
-            onClicked: {
-                if (_simulator.running) {
-                    _simulator.pause()
-                } else {
-                    _simulator.play();
+            MouseArea {
+                anchors.fill: parent
+                drag.target: parent
+                onClicked: {
+                    if (_simulator.running) {
+                        _simulator.pause()
+                    } else {
+                        _simulator.play();
+                    }
                 }
             }
-        }
 
-        Venues {
-            id: _venues
+            Venues {
+                id: _venues
 
-            anchors.fill: parent
+                anchors.fill: parent
+            }
         }
     }
 }

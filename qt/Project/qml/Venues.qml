@@ -4,7 +4,42 @@ Item {
     id: root
 
     property string location: ""
+    property bool listOpen: true
     signal destroyByTag(string tag);
+
+    StateGroup {
+        id: _stateGroupList
+
+        states: [
+            State {
+                when: root.listOpen
+                PropertyChanges {
+                    target: _listView
+                    anchors.rightMargin: 0
+                }
+            },
+            State {
+                when: !root.listOpen
+                PropertyChanges {
+                    target: _listView
+                    anchors.rightMargin: -1*_listView.width
+                }
+            }
+        ]
+
+        transitions: [
+            Transition {
+                SequentialAnimation {
+                    NumberAnimation {
+                        target: _listView
+                        property: "anchors.rightMargin"
+                        duration: 300
+                        easing.type: Easing.OutCubic
+                    }
+                }
+            }
+        ]
+    }
 
     Timer {
         id: _timerLimiter
@@ -36,9 +71,6 @@ Item {
                             && response.response.groups
                             && response.response.groups[0]
                             && response.response.groups[0].items) {
-
-
-                        //_listView.model = response.response.groups[0].items.slice(0, 5)
 
 
                         var list = response.response.groups[0].items.slice(0, 5);
