@@ -1,17 +1,18 @@
 <RCC>
-    <qresource prefix="/">
-        <file>qml/Api.qml</file>
-        <file>qml/assets/simulation-1.json</file>
-        <file>qml/assets/simulation-2.json</file>
-        <file>qml/assets/simulation-3.json</file>
-        <file>qml/assets/simulation-4.json</file>
-        <file>qml/Dashcam.qml</file>
-        <file>qml/img/bg.jpg</file>
-        <file>qml/main.qml</file>
-        <file>qml/Simulator.qml</file>
-        <file>qml/utils/JSONListModel.qml</file>
-        <file>qml/utils/jsonpath.js</file>
-        <file>qml/TextLabel.qml</file>
-        <file>qml/Venues.qml</file>
-    </qresource>
+	<qresource prefix="/">
+		<file>qml/Api.qml</file>
+		<file>qml/assets/simulation-1.json</file>
+		<file>qml/assets/simulation-2.json</file>
+		<file>qml/assets/simulation-3.json</file>
+		<file>qml/assets/simulation-4.json</file>
+		<file>qml/Dashcam.qml</file>
+		<file>qml/img/arrow.png</file>
+		<file>qml/img/bg.jpg</file>
+		<file>qml/main.qml</file>
+		<file>qml/Simulator.qml</file>
+		<file>qml/TextLabel.qml</file>
+		<file>qml/utils/JSONListModel.qml</file>
+		<file>qml/utils/jsonpath.js</file>
+		<file>qml/Venues.qml</file>
+	</qresource>
 </RCC>

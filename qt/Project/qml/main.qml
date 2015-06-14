@@ -3,12 +3,14 @@ import QtQuick.Controls 1.3
 import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
 import QtWebKit 3.0
+import QtGraphicalEffects 1.0 as QGE
 
 ApplicationWindow {
     id: root
 
     property bool production: false
 
+//    y: -1000
     width: 960
     height: 540
     visible: true
@@ -41,7 +43,23 @@ ApplicationWindow {
     Dashcam {
         id: _dashcam
 
-        anchors.centerIn: parent
+//        anchors.centerIn: parent
+
+        layer.enabled: true
+        layer.effect: QGE.FastBlur {
+            radius: 100
+
+            Behavior on radius {
+                SequentialAnimation {
+                    PauseAnimation { duration: 1000 }
+                    NumberAnimation { duration: 2000 }
+                }
+            }
+
+            Component.onCompleted: {
+                radius = 0
+            }
+        }
 
         MouseArea {
             anchors.fill: parent

@@ -1,5 +1,5 @@
-import QtQuick 2.0
-
+import QtQuick 2.4
+import QtGraphicalEffects 1.0 as QGE
 Item {
     id: root
 
@@ -59,7 +59,7 @@ Item {
             }
 
             width: ListView.view.width
-            height: 70
+            height: 90
 
             Rectangle {
                 anchors.fill: parent
@@ -84,7 +84,7 @@ Item {
                         id: _imageIcon
                         property var icon: modelData.venue.categories.length > 0 ? modelData.venue.categories[0].icon : null
                         anchors.centerIn: parent
-                        width: 40
+                        width: 52
                         fillMode: Image.PreserveAspectFit
 
                         source: icon.prefix + "64" + icon.suffix + "?ref=" + _api.clientId
@@ -95,7 +95,8 @@ Item {
 
                 Column {
                     anchors.left: _itemImageContainer.right
-                    anchors.right: parent.right
+                    anchors.right: _itemArrowContainer.left
+                    anchors.rightMargin: 10
                     anchors.verticalCenter: _itemImageContainer.verticalCenter
                     height: childrenRect.height
 
@@ -105,6 +106,8 @@ Item {
                         color: "#ffffff"
                         font.weight: Font.DemiBold
                         elide: Text.ElideRight
+                        maximumLineCount: 2
+                        wrapMode: Text.WordWrap
 
                         text: modelData.venue.name
                     }
@@ -116,6 +119,34 @@ Item {
                         elide: Text.ElideRight
 
                         text: String(distance).substr(0, 4) + " miles" + " " + bearingToHeading(Math.floor(bearing))
+                    }
+                }
+
+                Item {
+                    id: _itemArrowContainer
+                    anchors.right: parent.right
+                    width: parent.height
+                    height: width
+
+                    Image {
+                        id: _imageArrow
+                        anchors.centerIn: parent
+                        width: 32
+                        fillMode: Image.PreserveAspectFit
+                        source: "img/arrow.png"
+
+                        transformOrigin: Item.Center
+                        rotation: bearing
+
+                        Behavior on rotation {
+                            NumberAnimation { duration: 200 }
+                        }
+
+                        layer.smooth: true
+                        layer.enabled: true
+                        layer.effect: QGE.ColorOverlay {
+                            color: "#dddddd"
+                        }
                     }
                 }
             }
