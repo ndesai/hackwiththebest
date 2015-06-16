@@ -1,0 +1,3 @@
+[submodule "qml-qmqtt"]
+	path = qml-qmqtt
+	url = git@github.com:ndesai/qml-qmqtt.git

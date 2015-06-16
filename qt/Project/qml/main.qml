@@ -8,7 +8,8 @@ import QtGraphicalEffects 1.0 as QGE
 ApplicationWindow {
     id: root
 
-    property bool production: true
+    // true to fullscreen
+    property bool production: false
 
     width: 960
     height: 540

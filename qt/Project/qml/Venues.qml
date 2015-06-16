@@ -3,12 +3,11 @@ import QtGraphicalEffects 1.0 as QGE
 Item {
     id: root
 
+    signal destroyByTag(string tag);
+
     property string location: ""
     property bool listOpen: true
-
     property string filter: ""
-
-    signal destroyByTag(string tag);
 
     StateGroup {
         id: _stateGroupList
@@ -44,25 +43,22 @@ Item {
         ]
     }
 
-    Timer {
-        id: _timerLimiter
-        interval: 3000
-    }
+    Timer { id: _timerLimiter; interval: 3000 }
 
     Connections {
         target: _simulator
         onCurrentDataChanged: {
 
+            // Limit foursquare API calls
             if (_timerLimiter.running) {
                 return;
             }
 
             _timerLimiter.restart();
+
             var currentData = _simulator.currentData
 
-            if (!currentData) {
-                return;
-            }
+            if (!currentData) return;
 
             var latitude = _simulator.currentData['GPS_Latitude']
             var longitude =_simulator.currentData['GPS_Longitude']
@@ -116,6 +112,7 @@ Item {
         }
     }
 
+    // Methods found on the internet somewhere
     function checkLineIntersection(line1StartX, line1StartY, line1EndX, line1EndY, line2StartX, line2StartY, line2EndX, line2EndY) {
         // if the lines intersect, the result contains the x and y of the intersection (treating the lines as infinite) and booleans for whether line segment 1 or line segment 2 contain the point
         var denominator, a, b, numerator1, numerator2, result = {
@@ -168,10 +165,12 @@ Item {
         id: _itemTempContainer
         anchors.fill: parent
 
+        // Container used to parent the dynamically-created POIs
+
         z: 10000
     }
 
-    // 4a844f01f964a5203bfc1fe3 to object
+    // foursquare venueId to object
     property var poiMap: ({});
 
     Component {
@@ -182,15 +181,6 @@ Item {
 
             property string tag: ""
 
-            //            Connections {
-            //                target: root
-            //                onDestroyByTag: {
-            //                    if(_item.tag === tag) {
-            //                        _item.destroy();
-            //                    }
-            //                }
-            //            }
-
             property var modelData: ({});
 
             property double distance: _api.howFarFromMe(modelData.venue.location.lat,
@@ -198,14 +188,6 @@ Item {
 
             property double bearing: _api.whatBearingFromMe(modelData.venue.location.lat,
                                                             modelData.venue.location.lng)
-
-            function bearingToHeading(bearing) {
-                var directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"];
-                return directions[Math.round((bearing % 360) / 45)];
-            }
-
-            width: 52
-            height: 52
 
             property int widthDistanceFromMax: (root.width - (width + x))
             property int heightDistanceFromMax: (root.height - (height + y))
@@ -215,6 +197,15 @@ Item {
 
             property int centerX: ((root.width - width) / 2)
             property int centerY: ((root.height - height) / 2)
+
+            function bearingToHeading(bearing) {
+                var directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"];
+                return directions[Math.round((bearing % 360) / 45)];
+            }
+
+            width: 52
+            height: 52
+
 
             x: ((root.width - width) / 2)
             y: ((root.height - height) / 2)
@@ -234,15 +225,6 @@ Item {
             Behavior on y {
                 SmoothedAnimation { velocity: 500 }
             }
-
-            //            onDistanceChanged: {
-            //                if (distance > 0.5) {
-            //                    console.log()
-            //                    console.log("destroy !modelData.venue.name = " + modelData.venue.name,
-            //                                "distance = " + distance)
-            //                    destroy()
-            //                }
-            //            }
 
             onBearingChanged: {
 
@@ -292,7 +274,7 @@ Item {
                 Item {
                     id: _itemImageContainer
                     height: 52
-                    width: _imageIcon.status !== Image.Ready ? 0 : height
+                    width: _imageIcon.status !== Image.Ready ? 10 : height
                     clip: true
 
                     Behavior on width {
